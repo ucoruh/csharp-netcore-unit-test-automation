@@ -1,0 +1,102 @@
+name: Build, Test and Publish with Coverage Report
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  SOLUTION_FILE_PATH: CalculatorLibrary.sln
+  ARTIFACTS_DIR: publish
+  COVERAGE_REPORT_DIR: coveragereport
+
+jobs:
+  build_and_test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration Release
+      
+      - name: Run Tests with Code Coverage
+        run: |
+          dotnet test ${{ env.SOLUTION_FILE_PATH }} \
+          --no-build \
+          --verbosity normal \
+          --logger trx \
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=opencover \
+          /p:CoverletOutput=./TestResults/ \
+          /p:Exclude="[xunit.*]*%2c[CalculatorLibrary.Tests]*" \
+          /p:CoverletOutput=./TestResults/ \
+          /p:ThresholdType=line \
+          /p:ThresholdStat=total \
+          /p:Threshold=80 \
+          /p:MergeWith=./TestResults/coverage.opencover.xml
+      
+      - name: Generate Coverage Report
+        uses: coverallsapp/github-action@v1.3.0
+        with:
+          github-token: ${{ secrets.NET_CORE_TOKEN }}
+          path-to-lcov: ${{ env.COVERAGE_REPORT_DIR }}/lcov.info
+          
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACTS_DIR }}
+          path: ${{ env.ARTIFACTS_DIR }}
+          
+      - name: Publish Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.COVERAGE_REPORT_DIR }}
+          path: ${{ env.COVERAGE_REPORT_DIR }}
+
+  publish:
+    needs: build_and_test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
+      
+      - name: Publish Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this release:
+            - Added support for basic arithmetic operations
+          draft: false
+          prerelease: false
+      
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
+        with:
+          upload_url: ${{ steps.publish.outputs.upload_url }}
+          asset_path: ${{ env.ARTIFACTS_DIR }}/CalculatorLibrary.dll
+          asset_name: CalculatorLibrary.dll
+          asset_content_type: application/octet-stream
