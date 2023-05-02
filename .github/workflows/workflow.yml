@@ -17,16 +17,26 @@ jobs:
         dotnet-version: '6.0.x'
       
     - name: Install coverlet.msbuild
-      run: dotnet add package coverlet.msbuild --version 3.1.0
+      shell: cmd
+      run: |
+       cd CalculatorLibrary.Tests
+       dotnet add package coverlet.msbuild --version 3.1.0
+       cd ..
       
     - name: Build
-      run: dotnet build --configuration Release
+      shell: cmd
+      run: |
+       dotnet build --configuration Release
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      shell: cmd
+      run: |
+       cd CalculatorLibrary.Tests
+       dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+       cd ..
       
     - name: Generate Coverage Report
-      run: reportgenerator "-reports:**/coverage.opencover.xml" "-targetdir:coveragereport" -reporttypes:Html
+      run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
       
     - name: Generate Doxygen HTML Report
       uses: mattnotmitt/doxygen-action@v1.9.5
