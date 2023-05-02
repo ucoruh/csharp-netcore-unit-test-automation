@@ -21,7 +21,6 @@ jobs:
       run: |
        cd CalculatorLibrary.Tests
        dotnet add package coverlet.msbuild --version 3.1.0
-       cd ..
       
     - name: Build
       shell: cmd
@@ -33,7 +32,6 @@ jobs:
       run: |
        cd CalculatorLibrary.Tests
        dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
-       cd ..
       
     - name: Generate Coverage Report
       run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
