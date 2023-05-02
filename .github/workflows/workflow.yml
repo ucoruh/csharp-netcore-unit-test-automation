@@ -29,9 +29,9 @@ jobs:
       run: reportgenerator "-reports:**/coverage.opencover.xml" "-targetdir:coveragereport" -reporttypes:Html
       
     - name: Generate Doxygen HTML Report
-      uses: doxygen/doxygen-action@v2.2.1
+      uses: mattnotmitt/doxygen-action@v1.9.5
       with:
-        config-file: ./Doxyfile
+          doxyfile-path: 'Doxygen'
       
     - name: Compress Doxygen HTML Report
       run: tar -czvf doxygen-report.tar.gz html
