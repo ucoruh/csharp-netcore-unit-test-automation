@@ -15,23 +15,27 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./CalculatorLibrary.Tests
       
     - name: Install coverlet.msbuild
-      shell: cmd
-      run: |
-       cd CalculatorLibrary.Tests
-       dotnet add package coverlet.msbuild --version 3.1.0
+      run: dotnet add package coverlet.msbuild --version 3.1.0
+      working-directory: ./CalculatorLibrary.Tests
       
     - name: Build
-      shell: cmd
-      run: |
-       dotnet build --configuration Release
+      run: dotnet build --configuration Release
+      working-directory: ./CalculatorLibrary.Tests
+      
+#    - name: Test
+#      run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+#      working-directory: ./CalculatorLibrary.Tests
       
     - name: Test
       shell: cmd
-      run: |
-       cd CalculatorLibrary.Tests
-       dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      working-directory: ./CalculatorLibrary.Tests
       
     - name: Generate Coverage Report
       run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
