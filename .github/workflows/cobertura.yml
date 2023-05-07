@@ -43,7 +43,7 @@ jobs:
         working-directory: ./CalculatorLibrary.Tests
 
       - name: Generate Coverage Report
-        run: reportgenerator "-reports:./TestResults/*.trx" "-targetdir:coveragereport" -reporttypes:Html
+        run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
 
       - name: Publish
         run: dotnet publish --configuration Release --output publish
