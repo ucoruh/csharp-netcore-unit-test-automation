@@ -30,7 +30,7 @@ jobs:
         working-directory: ./CalculatorLibrary.Tests
 
       - name: Test with Coverage
-        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
         working-directory: ./CalculatorLibrary.Tests
 
       - name: Generate Coverage Report
