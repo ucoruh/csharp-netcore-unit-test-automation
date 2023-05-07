@@ -1,10 +1,16 @@
+name: .NET Windows MacOS Linux Release
+
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - 'v*'
+#on:
+#  push:
+#    branches:
+#      - main
+#  pull_request:
+#    branches:
+#      - main
 
 jobs:
   build:
@@ -45,8 +51,10 @@ jobs:
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
 
-      - name: Publish
-        run: dotnet publish --configuration Release --output publish
+#      - name: Publish
+#        run: dotnet publish --configuration Release --output publish
+      - name: Build/Publish for Windows
+        run: dotnet publish -c Release -r win-x64 --self-contained true -o publish/windows
 
       - name: Get Commit Summary
         id: commit_summary
@@ -69,15 +77,18 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
+      - name: Compress Windows binaries
+        run: tar -czvf windows-binaries.tar.gz -C publish/windows .
+                
+      - name: Upload Windows release asset
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish/CalculatorLibrary.dll
-          asset_name: CalculatorLibrary.dll
-          asset_content_type: application/octet-stream
+          upload_url: ${{ steps.create_common_release.outputs.upload_url }}
+          asset_path: ./windows-binaries.tar.gz
+          asset_name: windows-binaries.tar.gz
+          asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.REBIS_TOKEN }}
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
