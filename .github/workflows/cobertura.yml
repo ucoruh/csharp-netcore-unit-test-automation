@@ -61,7 +61,7 @@ jobs:
         run: echo "::set-output name=summary::$(git log --format=%B -n 1 ${{ github.sha }})"
 
       - name: Create Release
-        id: create_release
+        id: create_common_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
@@ -88,7 +88,7 @@ jobs:
           asset_name: windows-binaries.tar.gz
           asset_content_type: application/gzip
         env:
-          GITHUB_TOKEN: ${{ secrets.REBIS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
