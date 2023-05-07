@@ -23,7 +23,7 @@ jobs:
         shell: powershell
 
       - name: Install reportgenerator
-        run: choco install reportgenerator -y
+        run: choco install reportgenerator.portable -y
         shell: powershell
 
       - name: Restore dependencies
