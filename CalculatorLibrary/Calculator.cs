@@ -21,9 +21,15 @@ public class Calculator {
   /// \param a The first integer to multiply.
   /// \param b The second integer to multiply.
   /// \return The product of \a a and \a b.
-  public int Multiply(int a, int b) {
-    return a * b;
-  }
+  /// 
+  /// 
+						  public int Multiply(int a, int b) {
+							  
+							  
+							  
+							  
+							return a * b;
+						  }
 
   /// \brief Divides two integers.
   /// \param a The numerator.
