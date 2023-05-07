@@ -1,95 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/c,csharp,vs,visualstudio,visualstudiocode,java,maven,c++,cmake,eclipse,netbeans
-# Edit at https://www.toptal.com/developers/gitignore?templates=c,csharp,vs,visualstudio,visualstudiocode,java,maven,c++,cmake,eclipse,netbeans
-
-### C ###
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-### C++ ###
-# Prerequisites
-
-# Compiled Object files
-*.slo
-
-# Precompiled Headers
-
-# Compiled Dynamic libraries
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-
-# Executables
-
-### CMake ###
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-
-### CMake Patch ###
-# External projects
-*-prefix/
+# Created by https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,visualstudio,visualstudiocode,test
+# Edit at https://www.toptal.com/developers/gitignore?templates=csharp,dotnetcore,visualstudio,visualstudiocode,test
 
 ### Csharp ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -166,8 +76,12 @@ StyleCopReport.xml
 *_i.c
 *_p.c
 *_h.h
+*.ilk
 *.meta
+*.obj
 *.iobj
+*.pch
+*.pdb
 *.ipdb
 *.pgc
 *.pgd
@@ -485,124 +399,94 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-### Eclipse ###
-.metadata
+### DotnetCore ###
+# .NET Core build folders
 bin/
-tmp/
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.recommenders
+obj/
 
-# External tool builders
-.externalToolBuilders/
+# Common node modules locations
+/node_modules
+/wwwroot/node_modules
 
-# Locally stored "Eclipse launch configurations"
-*.launch
+### Test ###
+### Ignore all files that could be used to test your code and
+### you wouldn't want to push
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
+# Reference https://en.wikipedia.org/wiki/Metasyntactic_variable
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
+# Most common
+*foo
+*bar
+*fubar
+*foobar
+*baz
 
-# CDT- autotools
-.autotools
+# Less common
+*qux
+*quux
+*bongo
+*bazola
+*ztesch
 
-# Java annotation processor (APT)
-.factorypath
+# UK, Australia
+*wibble
+*wobble
+*wubble
+*flob
+*blep
+*blah
+*boop
+*beep
 
-# PDT-specific (PHP Development Tools)
-.buildpath
+# Japanese
+*hoge
+*piyo
+*fuga
+*hogera
+*hogehoge
 
-# sbteclipse plugin
-.target
+# Portugal, Spain
+*fulano
+*sicrano
+*beltrano
+*mengano
+*perengano
+*zutano
 
-# Tern plugin
-.tern-project
+# France, Italy, the Netherlands
+*toto
+*titi
+*tata
+*tutu
+*pipppo
+*pluto
+*paperino
+*aap
+*noot
+*mies
 
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
-
-# Annotation Processing
-.apt_generated/
-.apt_generated_test/
-
-# Scala IDE specific (Scala & Java development for Eclipse)
-.cache-main
-.scala_dependencies
-.worksheet
-
-# Uncomment this line if you wish to ignore the project description file.
-# Typically, this file would be tracked if it contains build/dependency configurations:
-#.project
-
-### Eclipse Patch ###
-# Spring Boot Tooling
-.sts4-cache/
-
-### Java ###
-# Compiled class file
-*.class
-
-# Log file
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-
-### Maven ###
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
-
-# Eclipse m2e generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-### NetBeans ###
-**/nbproject/private/
-**/nbproject/Makefile-*.mk
-**/nbproject/Package-*.bash
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+# Other names that would make sense
+*tests
+*testsdir
+*testsfile
+*testsfiles
+*test
+*testdir
+*testfile
+*testfiles
+*testing
+*testingdir
+*testingfile
+*testingfiles
+*temp
+*tempdir
+*tempfile
+*tempfiles
+*tmp
+*tmpdir
+*tmpfile
+*tmpfiles
+*lol
 
 ### VisualStudioCode ###
 !.vscode/*.code-snippets
@@ -616,166 +500,6 @@ nbdist/
 # Ignore all local history of files
 .history
 .ionide
-
-### vs ###
-## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
-
-# User-specific files
-
-# User-specific files (MonoDevelop/Xamarin Studio)
-
-# Mono auto generated files
-
-# Build results
-
-# Visual Studio 2015/2017 cache/options directory
-# Uncomment if you have tasks that create the project's static files in wwwroot
-
-# Visual Studio 2017 auto generated files
-
-# MSTest test Results
-
-# NUnit
-
-# Build Results of an ATL Project
-
-# Benchmark Results
-
-# .NET Core
-
-# StyleCop
-
-# Files built by Visual Studio
-
-# Chutzpah Test files
-
-# Visual C++ cache files
-
-# Visual Studio profiler
-
-# Visual Studio Trace Files
-
-# TFS 2012 Local Workspace
-
-# Guidance Automation Toolkit
-
-# ReSharper is a .NET coding add-in
-
-# TeamCity is a build add-in
-
-# DotCover is a Code Coverage Tool
-
-# AxoCover is a Code Coverage Tool
-
-# Coverlet is a free, cross platform Code Coverage Tool
-coverage*[.json, .xml, .info]
-
-# Visual Studio code coverage results
-
-# NCrunch
-
-# MightyMoose
-
-# Web workbench (sass)
-
-# Installshield output folder
-
-# DocProject is a documentation generator add-in
-
-# Click-Once directory
-
-# Publish Web Output
-# Note: Comment the next line if you want to checkin your web deploy settings,
-# but database connection strings (with potential passwords) will be unencrypted
-
-# Microsoft Azure Web App publish settings. Comment the next line if you want to
-# checkin your Azure Web App publish settings, but sensitive information contained
-# in these scripts will be unencrypted
-
-# NuGet Packages
-# NuGet Symbol Packages
-# The packages folder can be ignored because of Package Restore
-# except build/, which is used as an MSBuild target.
-# Uncomment if necessary however generally it will be regenerated when needed
-# NuGet v3's project.json files produces more ignorable files
-
-# Microsoft Azure Build Output
-
-# Microsoft Azure Emulator
-
-# Windows Store app package directories and files
-
-# Visual Studio cache files
-# files ending in .cache can be ignored
-# but keep track of directories ending in .cache
-
-# Others
-
-# Including strong name files can present a security risk
-# (https://github.com/github/gitignore/pull/2483#issue-259490424)
-
-# Since there are multiple workflows, uncomment next line to ignore bower_components
-# (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
-
-# RIA/Silverlight projects
-
-# Backup & report files from converting an old project file
-# to a newer Visual Studio version. Backup files are not needed,
-# because we have git ;-)
-
-# SQL Server files
-
-# Business Intelligence projects
-
-# Microsoft Fakes
-
-# GhostDoc plugin setting file
-
-# Node.js Tools for Visual Studio
-
-# Visual Studio 6 build log
-
-# Visual Studio 6 workspace options file
-
-# Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
-
-# Visual Studio LightSwitch build output
-
-# Paket dependency manager
-
-# FAKE - F# Make
-
-# CodeRush personal settings
-
-# Python Tools for Visual Studio (PTVS)
-
-# Cake - Uncomment if you are using it
-# tools/**
-# !tools/packages.config
-
-# Tabs Studio
-
-# Telerik's JustMock configuration file
-
-# BizTalk build output
-
-# OpenCover UI analysis results
-
-# Azure Stream Analytics local run output
-
-# MSBuild Binary and Structured Log
-
-# NVidia Nsight GPU debugger configuration file
-
-# MFractors (Xamarin productivity tool) working folder
-
-# Local History for Visual Studio
-
-# BeatPulse healthcheck temp database
-
-# Backup folder for Package Reference Convert tool in Visual Studio 2017
-
-# Ionide (cross platform F# VS Code tools) working folder
 
 ### VisualStudio ###
 
@@ -958,9 +682,7 @@ coverage*[.json, .xml, .info]
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-# End of https://www.toptal.com/developers/gitignore/api/c,csharp,vs,visualstudio,visualstudiocode,java,maven,c++,cmake,eclipse,netbeans
-
-/CalculatorLibrary.Tests/coveragereport
-/coveragereport
-/Docs
+# End of https://www.toptal.com/developers/gitignore/api/csharp,dotnetcore,visualstudio,visualstudiocode,test
+/Docs/*
+/coveragereport/*
 *.cs.orig
