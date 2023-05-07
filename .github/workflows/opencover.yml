@@ -1,0 +1,79 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./CalculatorLibrary.Tests
+
+      - name: Install coverlet.msbuild
+        run: dotnet add package coverlet.msbuild --version 3.1.0
+        working-directory: ./CalculatorLibrary.Tests
+
+      - name: Build
+        run: dotnet build --configuration Release
+        working-directory: ./CalculatorLibrary.Tests
+
+      - name: Test with Coverage
+        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
+        working-directory: ./CalculatorLibrary.Tests
+
+      - name: Generate Coverage Report
+        run: reportgenerator "-reports:./TestResults/*.trx" "-targetdir:coveragereport" -reporttypes:Html
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output publish
+
+      - name: Get Commit Summary
+        id: commit_summary
+        run: echo "::set-output name=summary::$(git log --format=%B -n 1 ${{ github.sha }})"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Commit Summary:
+            ${{ steps.commit_summary.outputs.summary }}
+            
+            Changes in this release:
+            - Added support for basic arithmetic operations
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./publish/CalculatorLibrary.dll
+          asset_name: CalculatorLibrary.dll
+          asset_content_type: application/octet-stream
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coveragereport
