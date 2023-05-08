@@ -50,6 +50,21 @@ jobs:
 
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
+        
+      - name: Check Test Coverage
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $coverageThreshold = 100
+          $coverageReportPath = Get-ChildItem -Recurse -Filter 'coverage.cobertura.xml' | Select-Object -ExpandProperty FullName
+          $coverageReport = Get-Content $coverageReportPath | Select-String -Pattern '(?<=<LineCoverage>).*(?=<\/LineCoverage>)' | ForEach-Object { $_.Matches.Value }
+     
+          if ($coverageReport -lt $coverageThreshold) {
+            Write-Host "Test coverage is below the threshold of $coverageThreshold%."
+            exit 1
+          } else {
+            Write-Host "Test coverage is $coverageReport%."
+          }
+        shell: pwsh
 
 #      - name: Publish
 #        run: dotnet publish --configuration Release --output publish
