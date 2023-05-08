@@ -13,8 +13,8 @@ on:
 #      - main
 
 jobs:
-  setup_build:
-    runs-on: windows-latest
+  build:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       issues: read
@@ -28,18 +28,27 @@ jobs:
       - name: Setup .NET Core Use Project Version
         uses: actions/setup-dotnet@v1
         
-      - name: Install Chocolatey Package Manager
-        run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        shell: powershell
-
-      - name: Install reportgenerator Test Result and Coverage Report Generator
-        run: choco install reportgenerator.portable -y
-        shell: powershell
+     # - name: Install Chocolatey Package Manager
+     #   run: |
+     #     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+     #   shell: powershell
         
-      - name: Install Doxygen Code Documentation Generator Tool
-        run: choco install doxygen.install -y
-    
+      - name: Install reportgenerator
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get install -y reportgenerator
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            choco install reportgenerator.portable -y
+          fi
+          
+      - name: Install Doxygen
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get install -y doxygen
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            choco install doxygen.install -y
+          fi
+        
       - name: Restore Project Nuget Package Dependencies
         run: dotnet restore
         working-directory: ./CalculatorLibrary.Tests
@@ -51,33 +60,13 @@ jobs:
       - name: Build Test Project
         run: dotnet build --configuration Release
         working-directory: ./CalculatorLibrary.Tests
-    
-  test_coverage:
-    needs: setup_build
-    runs-on: windows-latest
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-    steps:
-    
+
       - name: Test with Coverage
         run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
         working-directory: ./CalculatorLibrary.Tests
         
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
-        
-  coverage_publish:
-    needs: test_coverage
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-    steps:
         
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -105,52 +94,51 @@ jobs:
     #      recreate: true
     #      path: code-coverage-results.md
     
-  quality_documentation:
-    needs: coverage_publish
-    runs-on: windows-latest
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
-    steps:
     
-      - name: Check Test Coverage
-        run: |
-            $ErrorActionPreference = 'Stop'
-            $coverageThreshold = 100.00
-            $coverageReportPath = Get-ChildItem -Recurse -Filter 'coverage.cobertura.xml' | Select-Object -ExpandProperty FullName
-            $lines = Get-Content $coverageReportPath
-            $xmlContent = $lines -join "`n"
-            $coverageXmlList = $xmlContent -split "<\?xml"
-            $totalLines = 0
-            $coveredLines = 0
-            foreach ($coverageXmlString in $coverageXmlList) {
-                if ($coverageXmlString.Trim() -ne '') {
-                    $coverageXmlString = "<?xml" + $coverageXmlString
-                    [xml]$coverageXml = $coverageXmlString
-                    $lineRate = $coverageXml.SelectSingleNode("//coverage").GetAttribute("line-rate")
-                    $coverage = [float]$lineRate * 100.00
-                    if ($coverage -lt $coverageThreshold) {
-                        Write-Host "Current test coverage is below the threshold of $coverageThreshold%."
-                        Write-Host "Current test coverage: $coverage%."
-                        exit 1
-                    }
-                }
-            }
-        shell: powershell
+    
+        
+    #  - name: Check Test Coverage
+    #    run: |
+    #        $ErrorActionPreference = 'Stop'
+    #        $coverageThreshold = 100.00
+    #        $coverageReportPath = Get-ChildItem -Recurse -Filter 'coverage.cobertura.xml' | Select-Object -ExpandProperty FullName
+    #        $lines = Get-Content $coverageReportPath
+    #        $xmlContent = $lines -join "`n"
+    #        $coverageXmlList = $xmlContent -split "<\?xml"
+    #        $totalLines = 0
+    #        $coveredLines = 0
+    #        foreach ($coverageXmlString in $coverageXmlList) {
+    #            if ($coverageXmlString.Trim() -ne '') {
+    #                $coverageXmlString = "<?xml" + $coverageXmlString
+    #                [xml]$coverageXml = $coverageXmlString
+    #                $lineRate = $coverageXml.SelectSingleNode("//coverage").GetAttribute("line-rate")
+    #                $coverage = [float]$lineRate * 100.00
+    #                if ($coverage -lt $coverageThreshold) {
+    #                    Write-Host "Current test coverage is below the threshold of $coverageThreshold%."
+    #                    Write-Host "Current test coverage: $coverage%."
+    #                    exit 1
+    #                }
+    #            }
+    #        }
+    #    shell: powershell
+    
+    - name: Check Test Coverage
+      run: |
+        coverageThreshold=100.00
+        coverageReportPath=$(find . -name 'coverage.cobertura.xml')
+        while IFS= read -r coverageFile; do
+          lineRate=$(xmlstarlet sel -t -v "/coverage/@line-rate" "$coverageFile")
+          coverage=$(awk "BEGIN { print $lineRate * 100.00 }")
+          if (( $(awk "BEGIN { print $coverage < $coverageThreshold }") )); then
+            echo "Current test coverage is below the threshold of $coverageThreshold%."
+            echo "Current test coverage: $coverage%."
+            exit 1
+          fi
+        done <<< "$coverageReportPath"
     
       - name: Generate Documentation
         run: doxygen Doxyfile
     
-  publish_release:
-    needs: quality_documentation
-    runs-on: windows-latest
-    permissions:
-      contents: read
-      issues: read
-      checks: write
-      pull-requests: write
     steps:
 #      - name: Publish
 #        run: dotnet publish --configuration Release --output publish
