@@ -69,18 +69,20 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            Commit Summary:
+            Changes in this release:
             ${{ steps.commit_summary.outputs.summary }}
             
-            Changes in this release:
-            - Added support for basic arithmetic operations
+            Dr. Ugur CORUH
           draft: false
           prerelease: false
 
       - name: Compress Windows binaries
         run: tar -czvf windows-binaries.tar.gz -C publish/windows .
+        
+      - name: Compress Windows Test Coverage Report
+        run: tar -czvf test-coverage-html.tar.gz -C coveragereport .
                 
-      - name: Upload Windows release asset
+      - name: Upload Windows Binaries to release asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_common_release.outputs.upload_url }}
@@ -90,8 +92,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v2
+      - name: Upload Test Converage HTML Report to release asset
+        uses: actions/upload-release-asset@v1
         with:
-          name: coverage-report
-          path: coveragereport
+          upload_url: ${{ steps.create_common_release.outputs.upload_url }}
+          asset_path: ./test-coverage-html.tar.gz
+          asset_name: test-coverage-html.tar.gz
+          asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
