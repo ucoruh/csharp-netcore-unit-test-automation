@@ -21,18 +21,14 @@ jobs:
       checks: write
       pull-requests: write
     steps:
-    
       - name: Checkout Code from Git
         uses: actions/checkout@v2
-        
       - name: Setup .NET Core Use Project Version
         uses: actions/setup-dotnet@v1
-        
      # - name: Install Chocolatey Package Manager
      #   run: |
      #     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
      #   shell: powershell
-        
       - name: Install reportgenerator
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -40,7 +36,6 @@ jobs:
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
             choco install reportgenerator.portable -y
           fi
-          
       - name: Install Doxygen
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -48,26 +43,20 @@ jobs:
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
             choco install doxygen.install -y
           fi
-        
       - name: Restore Project Nuget Package Dependencies
         run: dotnet restore
         working-directory: ./CalculatorLibrary.Tests
-
       - name: Install coverlet.msbuild before testing
         run: dotnet add package coverlet.msbuild --version 3.1.0
         working-directory: ./CalculatorLibrary.Tests
-        
       - name: Build Test Project
         run: dotnet build --configuration Release
         working-directory: ./CalculatorLibrary.Tests
-
       - name: Test with Coverage
         run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
         working-directory: ./CalculatorLibrary.Tests
-        
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
-        
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
@@ -80,7 +69,6 @@ jobs:
           indicators: true
           output: both
           thresholds: '60 80'
-          
       - name: Upload Code Coverage Results
         uses: actions/upload-artifact@v2
         with:
@@ -93,10 +81,6 @@ jobs:
     #    with:
     #      recreate: true
     #      path: code-coverage-results.md
-    
-    
-    
-        
     #  - name: Check Test Coverage
     #    run: |
     #        $ErrorActionPreference = 'Stop'
@@ -122,33 +106,29 @@ jobs:
     #        }
     #    shell: powershell
     
-    - name: Check Test Coverage
-      run: |
-        coverageThreshold=100.00
-        coverageReportPath=$(find . -name 'coverage.cobertura.xml')
-        while IFS= read -r coverageFile; do
-          lineRate=$(xmlstarlet sel -t -v "/coverage/@line-rate" "$coverageFile")
-          coverage=$(awk "BEGIN { print $lineRate * 100.00 }")
-          if (( $(awk "BEGIN { print $coverage < $coverageThreshold }") )); then
-            echo "Current test coverage is below the threshold of $coverageThreshold%."
-            echo "Current test coverage: $coverage%."
-            exit 1
-          fi
-        done <<< "$coverageReportPath"
-    
+      - name: Check Test Coverage
+        run: |
+          coverageThreshold=100.00
+          coverageReportPath=$(find . -name 'coverage.cobertura.xml')
+          while IFS= read -r coverageFile; do
+            lineRate=$(xmlstarlet sel -t -v "/coverage/@line-rate" "$coverageFile")
+            coverage=$(awk "BEGIN { print $lineRate * 100.00 }")
+            if (( $(awk "BEGIN { print $coverage < $coverageThreshold }") )); then
+              echo "Current test coverage is below the threshold of $coverageThreshold%."
+              echo "Current test coverage: $coverage%."
+              exit 1
+            fi
+          done <<< "$coverageReportPath"
+      
       - name: Generate Documentation
         run: doxygen Doxyfile
-    
-    steps:
-#      - name: Publish
-#        run: dotnet publish --configuration Release --output publish
+#     - name: Publish
+#       run: dotnet publish --configuration Release --output publish
       - name: Build/Publish for Windows
         run: dotnet publish -c Release -r win-x64 --self-contained true -o publish/windows
-    
       - name: Get Commit Summary
         id: commit_summary
         run: echo "::set-output name=summary::$(git log --format=%B -n 1 ${{ github.sha }})"
-
       - name: Create Release
         id: create_common_release
         uses: actions/create-release@v1
@@ -164,17 +144,12 @@ jobs:
             Dr. Ugur CORUH
           draft: false
           prerelease: false
-          
       - name: Compress Windows binaries
         run: tar -czvf windows-binaries.tar.gz -C publish/windows .
-        
       - name: Compress Windows Test Coverage Report
         run: tar -czvf test-coverage-html.tar.gz -C coveragereport .
-        
       - name: Compress Doxygen Output (Html/Xml/Latex)
         run: tar -czvf doxygen-output-html-xml-latex.tar.gz -C Docs .
-        
-        
       - name: Upload Windows Binaries to release asset
         uses: actions/upload-release-asset@v1
         with:
@@ -184,7 +159,6 @@ jobs:
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
-
       - name: Upload Test Converage HTML Report to release asset
         uses: actions/upload-release-asset@v1
         with:
@@ -194,7 +168,6 @@ jobs:
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ secrets.NET_CORE_TOKEN }}
-          
       - name: Upload Doxygen Output to release asset
         uses: actions/upload-release-asset@v1
         with:
