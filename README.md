@@ -1,5 +1,11 @@
 basic calculator library and unit test for .NET Core 6.0 in C#.
 
+[![GitHub release badge](https://badgen.net/github/release/ucoruh/csharp-netcore-unit-test-automation/stable)](https://github.com/ucoruh/csharp-netcore-unit-test-automation/releases/latest)
+
+![Ubuntu badge](assets/badge-ubuntu.svg)
+![macOS badge](assets/badge-macos.svg)
+![Windows badge](assets/badge-windows.svg)
+
 ![Tests](badge.svg)
 
 First, let's create a new solution and project using the .NET Core CLI:
@@ -116,35 +122,35 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
-      
+
     - name: Install coverlet.msbuild
       run: dotnet add package coverlet.msbuild --version 3.1.0
-      
+
     - name: Build
       run: dotnet build --configuration Release
-      
+
     - name: Test
       run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
-      
+
     - name: Generate Coverage Report
       run: reportgenerator "-reports:**/coverage.opencover.xml" "-targetdir:coveragereport" -reporttypes:Html
-      
+
     - name: Generate Doxygen HTML Report
       uses: doxygen/doxygen-action@v2.2.1
       with:
         config-file: ./Doxyfile
-      
+
     - name: Compress Doxygen HTML Report
       run: tar -czvf doxygen-report.tar.gz html
-      
+
     - name: Publish
       run: dotnet publish --configuration Release --output publish
-      
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -158,7 +164,7 @@ jobs:
           - Added support for basic arithmetic operations
         draft: false
         prerelease: false
-      
+
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -168,13 +174,13 @@ jobs:
         asset_path: ./publish/CalculatorLibrary.dll
         asset_name: CalculatorLibrary.dll
         asset_content_type: application/octet-stream
-      
+
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v2
       with:
         name: coverage-report
         path: coveragereport
-      
+
     - name: Upload Doxygen HTML Report
       uses: actions/upload-release-asset@v1
       env:
@@ -184,7 +190,6 @@ jobs:
         asset_path: ./doxygen-report.tar.gz
         asset_name: doxygen-report.tar.gz
         asset_content_type: application/x-gzip
-
 ```
 
 This workflow has two jobs: `build` and `release`. The `build` job runs on every push to or pull request against the `main` branch. It builds the solution in Release configuration and runs the unit tests using the `dotnet build` and `dotnet test` commands. The `release` job runs only after the `build` job succeeds. It publishes the library using the `dotnet publish` command, creates a new release in GitHub with a tag corresponding to the Git ref, and uploads the `CalculatorLibrary.dll` asset to the release.
