@@ -131,6 +131,7 @@ jobs:
       - name : Check Test Coverage
         run: |
           #!/bin/bash
+          sudo apt-get install -y libxml2-utils
           error_action_preference='Stop'
           coverage_threshold=100.00
           coverage_report_path=$(find . -name 'coverage.cobertura.xml' -type f -print -quit)
