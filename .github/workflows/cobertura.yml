@@ -15,7 +15,11 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -57,6 +61,44 @@ jobs:
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
         
+      - name: Publish Test Results
+        id: test-results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+         files: |
+          **/coverage.cobertura.xml    
+
+      - name: Set badge color
+        shell: bash
+        run: |
+          case ${{ fromJSON(steps.test-results.outputs.json).conclusion }} in
+            success)
+              echo "BADGE_COLOR=31c653" >> $GITHUB_ENV
+              ;;
+            failure)
+              echo "BADGE_COLOR=800000" >> $GITHUB_ENV
+              ;;
+            neutral)
+              echo "BADGE_COLOR=696969" >> $GITHUB_ENV
+              ;;
+          esac
+    
+      - name: Create badge
+        uses: emibcn/badge-action@d6f51ff11b5c3382b3b88689ae2d6db22d9737d1
+        with:
+          label: Tests
+          status: '${{ fromJSON(steps.test-results.outputs.json).formatted.stats.tests }} tests, ${{ fromJSON(steps.test-results.outputs.json).formatted.stats.runs }} runs: ${{ fromJSON(steps.test-results.outputs.json).conclusion }}'
+          color: ${{ env.BADGE_COLOR }}
+          path: badge.svg
+    
+      - name: Commit badge
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add badge.svg
+          git commit -m "Add badge image"
+          
       - name: Check Test Coverage
         run: |
             $ErrorActionPreference = 'Stop'

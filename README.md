@@ -1,5 +1,7 @@
 basic calculator library and unit test for .NET Core 6.0 in C#.
 
+![Tests](badge.svg)
+
 First, let's create a new solution and project using the .NET Core CLI:
 
 ```bash
