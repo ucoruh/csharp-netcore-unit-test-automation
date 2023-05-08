@@ -131,18 +131,15 @@ jobs:
       - name : Check Test Coverage
         run: |
             #!/bin/bash
-
             sudo apt-get install -y libxml2-utils
-
             error_action_preference='Stop'
             coverage_threshold=100.00
             coverage_report_path=$(find . -name 'coverage.cobertura.xml' -type f -print -quit)
             lines=$(cat "$coverage_report_path")
-            xml_content=$(echo "$lines" | tr '\n' ' ')
-            coverage_xml_list=$(echo "$xml_content" | sed -e 's/<\?xml[^?]*\?>//' -e 's/<\?xml/\'$'\n<?xml/g')
+            xml_content=$(echo "$lines" | tr -cd '[:print:]\n')
+            coverage_xml_list=$(echo "$xml_content" | sed -e 's/<\?xml[^?]*\?>//' -e 's/<\?xml/\'$'\n<?xml/g' -e 's/<\//\'$'\n<\/\//g')
             total_lines=0
             covered_lines=0
-
             for coverage_xml_string in $coverage_xml_list; do
                 if [[ -n "$coverage_xml_string" ]]; then
                     coverage_xml_string="<?xml$coverage_xml_string"
