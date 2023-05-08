@@ -38,9 +38,5 @@ public class Calculator {
     return a / b;
   }
 
-  public double Average(int[] a) {
-    return a.Average();
-  }
-
 }
 }
