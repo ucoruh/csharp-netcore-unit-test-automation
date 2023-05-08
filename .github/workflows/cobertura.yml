@@ -13,7 +13,7 @@ on:
 #      - main
 
 jobs:
-  build:
+  setup:
     runs-on: windows-latest
     permissions:
       contents: read
@@ -21,45 +21,83 @@ jobs:
       checks: write
       pull-requests: write
     steps:
-      - name: Checkout
+    
+      - name: Checkout Code from Git
         uses: actions/checkout@v2
         
-      - name: Setup .NET Core
+      - name: Setup .NET Core Use Project Version
         uses: actions/setup-dotnet@v1
         
-      - name: Install Chocolatey
+      - name: Install Chocolatey Package Manager
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
         shell: powershell
 
-      - name: Install reportgenerator
+      - name: Install reportgenerator Test Result and Coverage Report Generator
         run: choco install reportgenerator.portable -y
         shell: powershell
         
-      - name: Install Doxygen
+      - name: Install Doxygen Code Documentation Generator Tool
         run: choco install doxygen.install -y
-
-      - name: Generate Documentation
-        run: doxygen Doxyfile
-
-      - name: Restore dependencies
+  build:
+    needs: setup
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
+      - name: Restore Project Nuget Package Dependencies
         run: dotnet restore
         working-directory: ./CalculatorLibrary.Tests
 
-      - name: Install coverlet.msbuild
+      - name: Install coverlet.msbuild before testing
         run: dotnet add package coverlet.msbuild --version 3.1.0
         working-directory: ./CalculatorLibrary.Tests
-
-      - name: Build
+        
+      - name: Build Test Project
         run: dotnet build --configuration Release
         working-directory: ./CalculatorLibrary.Tests
-
+    
+  test:
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
       - name: Test with Coverage
         run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:./TestResults --logger:trx
         working-directory: ./CalculatorLibrary.Tests
-
+    
+  coverage_gen:
+    needs: test
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
       - name: Generate Coverage Report
         run: reportgenerator "-reports:**/coverage.cobertura.xml" "-targetdir:coveragereport" -reporttypes:Html
+        
+        
+  coverage_publish:
+    needs: coverage_gen
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
         
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -86,7 +124,17 @@ jobs:
     #    with:
     #      recreate: true
     #      path: code-coverage-results.md
-        
+    
+  quality:
+    needs: coverage_publish
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
       - name: Check Test Coverage
         run: |
             $ErrorActionPreference = 'Stop'
@@ -111,12 +159,46 @@ jobs:
                 }
             }
         shell: powershell
+        
+        
+  documentation:
+    needs: quality
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
+      - name: Generate Documentation
+        run: doxygen Doxyfile
+    
+  publish:
+    needs: documentation
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
 
 #      - name: Publish
 #        run: dotnet publish --configuration Release --output publish
       - name: Build/Publish for Windows
         run: dotnet publish -c Release -r win-x64 --self-contained true -o publish/windows
 
+  release:
+    needs: publish
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
+    
       - name: Get Commit Summary
         id: commit_summary
         run: echo "::set-output name=summary::$(git log --format=%B -n 1 ${{ github.sha }})"
@@ -136,6 +218,17 @@ jobs:
             Dr. Ugur CORUH
           draft: false
           prerelease: false
+          
+          
+  compress_pack:
+    needs: release
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
 
       - name: Compress Windows binaries
         run: tar -czvf windows-binaries.tar.gz -C publish/windows .
@@ -145,6 +238,17 @@ jobs:
         
       - name: Compress Doxygen Output (Html/Xml/Latex)
         run: tar -czvf doxygen-output-html-xml-latex.tar.gz -C Docs .
+        
+        
+  upload:
+    needs: compress_pack
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    steps:
                 
       - name: Upload Windows Binaries to release asset
         uses: actions/upload-release-asset@v1
