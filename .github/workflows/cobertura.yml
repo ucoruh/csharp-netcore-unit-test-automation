@@ -53,18 +53,28 @@ jobs:
         
       - name: Check Test Coverage
         run: |
-          $ErrorActionPreference = 'Stop'
-          $coverageThreshold = 100
-          $coverageReportPath = Get-ChildItem -Recurse -Filter 'coverage.cobertura.xml' | Select-Object -ExpandProperty FullName
-          $coverageReport = Get-Content $coverageReportPath | Select-String -Pattern '(?<=<LineCoverage>).*(?=<\/LineCoverage>)' | ForEach-Object { $_.Matches.Value }
-     
-          if ($coverageReport -lt $coverageThreshold) {
-            Write-Host "Test coverage is below the threshold of $coverageThreshold%."
-            exit 1
-          } else {
-            Write-Host "Test coverage is $coverageReport%."
-          }
-        shell: pwsh
+            $ErrorActionPreference = 'Stop'
+            $coverageThreshold = 100.00
+            $coverageReportPath = Get-ChildItem -Recurse -Filter 'coverage.cobertura.xml' | Select-Object -ExpandProperty FullName
+            $lines = Get-Content $coverageReportPath
+            $xmlContent = $lines -join "`n"
+            $coverageXmlList = $xmlContent -split "<\?xml"
+            $totalLines = 0
+            $coveredLines = 0
+            foreach ($coverageXmlString in $coverageXmlList) {
+                if ($coverageXmlString.Trim() -ne '') {
+                    $coverageXmlString = "<?xml" + $coverageXmlString
+                    [xml]$coverageXml = $coverageXmlString
+                    $lineRate = $coverageXml.SelectSingleNode("//coverage").GetAttribute("line-rate")
+                    $coverage = [float]$lineRate * 100.00
+                    if ($coverage -lt $coverageThreshold) {
+                        Write-Host "Current test coverage is below the threshold of $coverageThreshold%."
+                        Write-Host "Current test coverage: $coverage%."
+                        exit 1
+                    }
+                }
+            }
+        shell: powershell
 
 #      - name: Publish
 #        run: dotnet publish --configuration Release --output publish
