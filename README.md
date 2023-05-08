@@ -1,12 +1,33 @@
 basic calculator library and unit test for .NET Core 6.0 in C#.
 
-[![GitHub release badge](https://badgen.net/github/release/ucoruh/csharp-netcore-unit-test-automation/stable)](https://github.com/ucoruh/csharp-netcore-unit-test-automation/releases/latest)
+## Releases 
 
-![Ubuntu badge](assets/badge-ubuntu.svg)
-![macOS badge](assets/badge-macos.svg)
-![Windows badge](assets/badge-windows.svg)
+- [![GitHub release badge](https://badgen.net/github/release/ucoruh/csharp-netcore-unit-test-automation)](https://github.com/ucoruh/csharp-netcore-unit-test-automation/releases/latest)
 
-![Tests](badge.svg)
+## Platforms
+
+- ![Ubuntu badge](assets/badge-ubuntu.svg) (Not Supported)
+
+- ![macOS badge](assets/badge-macos.svg) (Not Supported)
+
+- ![Windows badge](assets/badge-windows.svg) (Supported)
+
+## Test Coverage
+
+**Coverage**
+- ![All](assets/badge_combined.svg)
+
+**Branch Coverage**
+- ![Branch Coverage](assets/badge_branchcoverage.svg)
+
+**Line Coverage**
+- ![Line Coverage](assets/badge_linecoverage.svg)
+
+**Method Coverage**
+- ![Method Coverage](assets/badge_methodcoverage.svg)
+
+
+
 
 First, let's create a new solution and project using the .NET Core CLI:
 
